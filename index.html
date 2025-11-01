@@ -124,18 +124,18 @@
         }
 
         .btn-compact {
-            padding: 10px 16px;
+            padding: 10px 20px;
             font-size: 14px;
             margin: 2px;
-            flex: 1 1 auto;
-            min-width: 100px;
+            flex: 1 1 0;
+            white-space: nowrap;
         }
 
         @media (max-width: 768px) {
             .btn-compact {
-                padding: 10px 12px;
+                padding: 10px 14px;
                 font-size: 13px;
-                min-width: 80px;
+                flex: 1 1 0;
             }
         }
 
@@ -678,7 +678,6 @@
                     <input type="url" id="urlInput" class="url-input" placeholder="Paste image URL here...">
                     <div class="button-row">
                         <button type="button" class="btn btn-compact" id="addUrlBtn">Add URL</button>
-                        <button type="button" class="btn btn-compact" id="pasteUrlBtn">Paste URL</button>
                         <button type="button" class="btn btn-compact" id="clearUrlBtn">Clear</button>
                         <button type="button" class="btn btn-compact" id="addEmptyCellBtn">Add Empty Cell</button>
                     </div>
@@ -778,7 +777,6 @@
         const fileInput = document.getElementById('fileInput');
         const urlInput = document.getElementById('urlInput');
         const addUrlBtn = document.getElementById('addUrlBtn');
-        const pasteUrlBtn = document.getElementById('pasteUrlBtn');
         const clearUrlBtn = document.getElementById('clearUrlBtn');
         const addEmptyCellBtn = document.getElementById('addEmptyCellBtn');
         const imageCounter = document.getElementById('imageCounter');
@@ -801,7 +799,6 @@
         uploadArea.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', handleFileSelect);
         addUrlBtn.addEventListener('click', addImageFromUrl);
-        pasteUrlBtn.addEventListener('click', pasteAndAddUrl);
         clearUrlBtn.addEventListener('click', clearUrlInput);
         addEmptyCellBtn.addEventListener('click', addEmptyCell);
         generateBtn.addEventListener('click', generateCollage);
@@ -1001,23 +998,6 @@
             } finally {
                 addUrlBtn.innerHTML = 'Add URL';
                 addUrlBtn.disabled = false;
-            }
-        }
-
-        async function pasteAndAddUrl() {
-            try {
-                const text = await navigator.clipboard.readText();
-                
-                if (!text || !text.trim()) {
-                    showPopupStatus('Clipboard is empty!', 'error');
-                    return;
-                }
-                
-                urlInput.value = text.trim();
-                await addImageFromUrl();
-                
-            } catch (error) {
-                showPopupStatus('Failed to read clipboard. Make sure you granted permission.', 'error');
             }
         }
 
