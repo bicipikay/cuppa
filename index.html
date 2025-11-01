@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuppa - Simple Collage Creator</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #3E2723 0%, #5D4037 50%, #8D6E63 100%);
+            color: #3E2723;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #FFFAF0;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #5D4037 0%, #6D4C41 100%);
+            color: #FFF8E1;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .logo-space {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.95;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            background: #FFF8E1;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid #D7CCC8;
+            text-align: center;
+        }
+
+        .upload-area {
+            border: 3px dashed #A1887F;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 20px 0;
+            background: #FFFAF0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: #6D4C41;
+            background: #FFF8E1;
+        }
+
+        .upload-area.dragover {
+            border-color: #8D6E63;
+            background: #FFEAA7;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #8D6E63;
+            margin-bottom: 15px;
+        }
+
+        .url-input-section {
+            margin: 20px 0;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #D7CCC8;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            background: #FFFAF0;
+        }
+
+        .url-input:focus {
+            outline: none;
+            border-color: #6D4C41;
+            box-shadow: 0 0 0 3px rgba(109, 76, 65, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #6D4C41 0%, #5D4037 100%);
+            color: #FFF8E1;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(93, 64, 55, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #D4A574 0%, #C19A6B 100%);
+            color: #3E2723;
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 10px 20px rgba(212, 165, 116, 0.3);
+        }
+
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+            padding: 20px;
+            background: #FFFAF0;
+            border-radius: 10px;
+            min-height: 80px;
+        }
+
+        .image-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 4px 15px rgba(62, 39, 35, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .image-item:hover {
+            transform: scale(1.05);
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .empty-cell-item {
+            position: relative;
+            border-radius: 8px;
+            background: #FFF8E1;
+            border: 2px dashed #A1887F;
+            box-shadow: 0 4px 15px rgba(62, 39, 35, 0.1);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 120px;
+            font-size: 36px;
+            color: #A1887F;
+        }
+
+        .empty-cell-item:hover {
+            transform: scale(1.05);
+        }
+
+        .reorder-buttons {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            display: flex;
+            gap: 3px;
+        }
+
+        .reorder-btn {
+            background: rgba(109, 76, 65, 0.9);
+            color: #FFF8E1;
+            border: none;
+            border-radius: 4px;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .reorder-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(229, 62, 62, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-counter {
+            background: #6D4C41;
+            color: #FFF8E1;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .generate-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .collage-preview {
+            background: #FFFAF0;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            text-align: center;
+            border: 2px solid #D7CCC8;
+        }
+
+        .preview-canvas {
+            border: 1px solid #D7CCC8;
+            border-radius: 8px;
+            max-width: 100%;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(62, 39, 35, 0.2);
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #D4E9D6;
+            color: #22543d;
+            border: 1px solid #9AE6B4;
+        }
+
+        .status-error {
+            background: #FED7D7;
+            color: #742a2a;
+            border: 1px solid #FC8181;
+        }
+
+        .status-info {
+            background: #D4E4F7;
+            color: #2a4365;
+            border: 1px solid #90CDF4;
+        }
+
+        .popup-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            padding: 20px 30px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: popupFadeIn 0.3s ease-out;
+            max-width: 400px;
+            min-width: 300px;
+        }
+
+        .popup-success {
+            background: linear-gradient(135deg, #D4A574, #C19A6B);
+            color: #3E2723;
+        }
+
+        .popup-error {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+            color: white;
+        }
+
+        .popup-info {
+            background: linear-gradient(135deg, #8D6E63, #6D4C41);
+            color: #FFF8E1;
+        }
+
+        @keyframes popupFadeIn {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @keyframes popupFadeOut {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+        }
+
+        .popup-notification.fade-out {
+            animation: popupFadeOut 0.3s ease-in forwards;
+        }
+
+        .controls-section {
+            background: #FFF8E1;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid #D7CCC8;
+        }
+
+        .controls-section h3 {
+            margin-bottom: 15px;
+            color: #5D4037;
+            font-size: 1.1em;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #5D4037;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: #D7CCC8;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6D4C41 0%, #5D4037 100%);
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(109, 76, 65, 0.3);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6D4C41 0%, #5D4037 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(109, 76, 65, 0.3);
+        }
+
+        .increment-btn {
+            background: #8D6E63;
+            color: #FFF8E1;
+            border: none;
+            border-radius: 4px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .increment-btn:hover {
+            background: #6D4C41;
+            transform: scale(1.05);
+        }
+
+        .increment-btn:active {
+            transform: scale(0.95);
+        }
+
+        .control-group span {
+            font-weight: 600;
+            color: #6D4C41;
+            font-size: 14px;
+        }
+
+        .aspect-ratio-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 10px;
+            background: #FFFAF0;
+            border-radius: 8px;
+            border: 1px solid #D7CCC8;
+        }
+
+        .aspect-ratio-section input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #6D4C41;
+        }
+
+        .aspect-ratio-section label {
+            font-weight: 600;
+            color: #5D4037;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            padding: 6px 12px;
+            font-size: 13px;
+            background: linear-gradient(135deg, #8D6E63 0%, #6D4C41 100%);
+        }
+
+        .preset-btn:hover {
+            box-shadow: 0 6px 16px rgba(141, 110, 99, 0.3);
+        }
+
+        .layout-preview {
+            background: #FFFAF0;
+            border: 2px solid #D7CCC8;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 14px;
+            color: #5D4037;
+            font-weight: 500;
+        }
+
+        .duplicate-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+            background: #FFFAF0;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .duplicate-dialog h3 {
+            color: #e53e3e;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .duplicate-dialog p {
+            color: #5D4037;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .duplicate-dialog .dialog-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #D7CCC8;
+            border-top: 3px solid #6D4C41;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #A1887F;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .main-content { padding: 15px; }
+            .upload-area { padding: 20px 15px; }
+            .images-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; padding: 15px; }
+            .controls-grid { grid-template-columns: 1fr; gap: 15px; }
+            .controls-section { padding: 15px; }
+            .slider-container { flex-direction: row; gap: 8px; align-items: center; }
+            .slider { height: 8px; flex: 1; }
+            .slider::-webkit-slider-thumb { width: 24px; height: 24px; }
+            .slider::-moz-range-thumb { width: 24px; height: 24px; }
+            .increment-btn { width: 36px; height: 36px; font-size: 16px; flex-shrink: 0; }
+            .control-group { gap: 8px; }
+            .control-group label { font-size: 14px; margin-bottom: 6px; }
+            .control-group span { font-size: 13px; margin-top: 4px; }
+            .preset-buttons { gap: 6px; }
+            .preset-btn { padding: 8px 10px; font-size: 12px; }
+            .aspect-ratio-section { padding: 12px; margin: 12px 0; }
+            .aspect-ratio-section label { font-size: 13px; }
+            .btn { padding: 10px 16px; font-size: 14px; }
+            .url-input { font-size: 16px; }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 { font-size: 2em; }
+            .header p { font-size: 0.9em; }
+            .controls-section h3 { font-size: 1em; }
+            .increment-btn { width: 32px; height: 32px; font-size: 14px; }
+            .preset-btn { padding: 7px 9px; font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-space"></div>
+            <h1>☕ Cuppa</h1>
+            <p>Simple and minimalistic collage creator for your photos<br>
+            <small>Discord CDN links automatically converted to media.discordapp.net</small></p>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <h2>📸 Add Your Images</h2>
+                <p>Upload images via drag & drop, file selection, or URL</p>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">🖼️</div>
+                    <h3>Drag & Drop Images Here</h3>
+                    <p>or click to select files</p>
+                    <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+                </div>
+
+                <div class="url-input-section">
+                    <input type="url" id="urlInput" class="url-input" placeholder="Paste image URL here...">
+                    <button type="button" class="btn" id="addUrlBtn">Add URL</button>
+                    <button type="button" class="btn" id="pasteUrlBtn">Paste URL</button>
+                    <button type="button" class="btn" id="clearUrlBtn">Clear</button>
+                </div>
+
+                <div style="margin: 15px 0;">
+                    <button type="button" class="btn" id="addEmptyCellBtn">➕ Add Empty Cell</button>
+                </div>
+
+                <div class="image-counter" id="imageCounter">
+                    0 images added
+                </div>
+
+                <div class="controls-section">
+                    <h3>🎛️ Layout Controls</h3>
+                    <div class="controls-grid">
+                        <div class="control-group">
+                            <label for="rowsSlider">Rows:</label>
+                            <div class="slider-container">
+                                <button class="increment-btn" onclick="adjustRows(-1)">-</button>
+                                <input type="range" id="rowsSlider" min="1" max="10" value="2" class="slider">
+                                <button class="increment-btn" onclick="adjustRows(1)">+</button>
+                            </div>
+                            <span id="rowsValue">2</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="cellWidthSlider">Cell Width:</label>
+                            <div class="slider-container">
+                                <button class="increment-btn" onclick="adjustCellWidth(-1)">-</button>
+                                <input type="range" id="cellWidthSlider" min="50" max="1000" value="500" class="slider">
+                                <button class="increment-btn" onclick="adjustCellWidth(1)">+</button>
+                            </div>
+                            <span id="cellWidthValue">500px</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="cellHeightSlider">Cell Height:</label>
+                            <div class="slider-container">
+                                <button class="increment-btn" onclick="adjustCellHeight(-1)">-</button>
+                                <input type="range" id="cellHeightSlider" min="50" max="1000" value="800" class="slider">
+                                <button class="increment-btn" onclick="adjustCellHeight(1)">+</button>
+                            </div>
+                            <span id="cellHeightValue">800px</span>
+                        </div>
+                        <div class="control-group">
+                            <label for="cellSpacingSlider">Cell Spacing:</label>
+                            <div class="slider-container">
+                                <button class="increment-btn" onclick="adjustCellSpacing(-1)">-</button>
+                                <input type="range" id="cellSpacingSlider" min="0" max="50" value="5" class="slider">
+                                <button class="increment-btn" onclick="adjustCellSpacing(1)">+</button>
+                            </div>
+                            <span id="cellSpacingValue">5px</span>
+                        </div>
+                    </div>
+                    
+                    <div class="aspect-ratio-section">
+                        <input type="checkbox" id="aspectRatioLock" onchange="toggleAspectRatioLock()">
+                        <label for="aspectRatioLock">🔒 Lock Aspect Ratio (5:8)</label>
+                    </div>
+                    
+                    <div class="preset-buttons">
+                        <button type="button" class="btn preset-btn" onclick="setPreset(280, 280)">Square</button>
+                        <button type="button" class="btn preset-btn" onclick="setPreset(200, 300)">Portrait</button>
+                        <button type="button" class="btn preset-btn" onclick="setPreset(300, 200)">Landscape</button>
+                        <button type="button" class="btn preset-btn" onclick="setPreset(500, 800)">Tall (Default)</button>
+                    </div>
+                </div>
+
+                <div class="images-grid" id="imagesGrid">
+                    <div class="empty-state">
+                        No images added yet. Start by uploading or dragging images above.
+                    </div>
+                </div>
+
+                <div class="generate-section">
+                    <button type="button" class="btn btn-success" id="generateBtn" disabled>
+                        🎨 Generate Collage
+                    </button>
+                </div>
+            </div>
+
+            <div class="collage-preview" id="collagePreview" style="display: none;">
+                <h2>🎉 Your Collage</h2>
+                <canvas id="collageCanvas" class="preview-canvas"></canvas>
+                <div>
+                    <button type="button" class="btn btn-success" id="downloadBtn">
+                        💾 Download Collage
+                    </button>
+                </div>
+                <div id="collageInfo"></div>
+            </div>
+
+            <div id="statusContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let images = [];
+        let userRows = 2;
+        let userCellWidth = 500;
+        let userCellHeight = 800;
+        let userCellSpacing = 5;
+        let aspectRatioLocked = false;
+        let currentAspectRatio = 500 / 800;
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const urlInput = document.getElementById('urlInput');
+        const addUrlBtn = document.getElementById('addUrlBtn');
+        const pasteUrlBtn = document.getElementById('pasteUrlBtn');
+        const clearUrlBtn = document.getElementById('clearUrlBtn');
+        const addEmptyCellBtn = document.getElementById('addEmptyCellBtn');
+        const imageCounter = document.getElementById('imageCounter');
+        const imagesGrid = document.getElementById('imagesGrid');
+        const generateBtn = document.getElementById('generateBtn');
+        const collagePreview = document.getElementById('collagePreview');
+        const collageCanvas = document.getElementById('collageCanvas');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        const rowsSlider = document.getElementById('rowsSlider');
+        const cellWidthSlider = document.getElementById('cellWidthSlider');
+        const cellHeightSlider = document.getElementById('cellHeightSlider');
+        const cellSpacingSlider = document.getElementById('cellSpacingSlider');
+        const rowsValue = document.getElementById('rowsValue');
+        const cellWidthValue = document.getElementById('cellWidthValue');
+        const cellHeightValue = document.getElementById('cellHeightValue');
+        const cellSpacingValue = document.getElementById('cellSpacingValue');
+        const aspectRatioLock = document.getElementById('aspectRatioLock');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', handleFileSelect);
+        addUrlBtn.addEventListener('click', addImageFromUrl);
+        pasteUrlBtn.addEventListener('click', pasteAndAddUrl);
+        clearUrlBtn.addEventListener('click', clearUrlInput);
+        addEmptyCellBtn.addEventListener('click', addEmptyCell);
+        generateBtn.addEventListener('click', generateCollage);
+        downloadBtn.addEventListener('click', downloadCollage);
+
+        rowsSlider.addEventListener('input', updateRows);
+        cellWidthSlider.addEventListener('input', updateCellWidth);
+        cellHeightSlider.addEventListener('input', updateCellHeight);
+        cellSpacingSlider.addEventListener('input', updateCellSpacing);
+
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addImageFromUrl();
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = Array.from(e.dataTransfer.files);
+            const imageFiles = files.filter(file => file.type.startsWith('image/'));
+            
+            if (imageFiles.length > 0) {
+                addImagesFromFiles(imageFiles);
+            } else {
+                showPopupStatus('No image files found in drop.', 'error');
+            }
+        });
+
+        document.addEventListener('paste', async (e) => {
+            const items = e.clipboardData.items;
+            
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    e.preventDefault();
+                    const blob = item.getAsFile();
+                    await addImageFromBlob(blob, 'Pasted Image');
+                    break;
+                }
+            }
+        });
+
+        function adjustRows(delta) {
+            const newValue = Math.max(1, Math.min(10, userRows + delta));
+            rowsSlider.value = newValue;
+            updateRows();
+        }
+
+        function adjustCellWidth(delta) {
+            const newValue = Math.max(50, Math.min(1000, userCellWidth + delta));
+            cellWidthSlider.value = newValue;
+            updateCellWidth();
+        }
+
+        function adjustCellHeight(delta) {
+            const newValue = Math.max(50, Math.min(1000, userCellHeight + delta));
+            cellHeightSlider.value = newValue;
+            updateCellHeight();
+        }
+
+        function adjustCellSpacing(delta) {
+            const newValue = Math.max(0, Math.min(50, userCellSpacing + delta));
+            cellSpacingSlider.value = newValue;
+            updateCellSpacing();
+        }
+
+        function toggleAspectRatioLock() {
+            aspectRatioLocked = aspectRatioLock.checked;
+            if (aspectRatioLocked) {
+                currentAspectRatio = userCellWidth / userCellHeight;
+                updateAspectRatioLabel();
+            }
+        }
+
+        function updateAspectRatioLabel() {
+            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+            const divisor = gcd(userCellWidth, userCellHeight);
+            const ratioW = userCellWidth / divisor;
+            const ratioH = userCellHeight / divisor;
+            
+            const label = aspectRatioLock.nextElementSibling;
+            label.textContent = `🔒 Lock Aspect Ratio (${ratioW}:${ratioH})`;
+        }
+
+        function convertDiscordUrl(url) {
+            if (url.includes('cdn.discordapp.com')) {
+                return url.replace('cdn.discordapp.com', 'media.discordapp.net');
+            }
+            return url;
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            addImagesFromFiles(files);
+            fileInput.value = '';
+        }
+
+        async function addImagesFromFiles(files) {
+            for (let file of files) {
+                const isDuplicate = images.some(img => 
+                    img.filename === file.name && 
+                    img.filesize === file.size
+                );
+                
+                if (isDuplicate) {
+                    const shouldAdd = await showDuplicateDialog(file.name);
+                    if (!shouldAdd) {
+                        continue;
+                    }
+                }
+                
+                await addImageFromBlob(file, file.name, file.size);
+            }
+        }
+
+        async function addImageFromBlob(blob, filename, filesize = blob.size) {
+            try {
+                const url = URL.createObjectURL(blob);
+                const img = await loadImageFromUrl(url);
+                
+                images.push({
+                    element: img,
+                    filename: filename,
+                    filesize: filesize,
+                    url: url,
+                    aspectRatio: img.width / img.height,
+                    isEmpty: false
+                });
+                
+                updateUI();
+                showPopupStatus(`✅ Added ${filename}`, 'success');
+                
+            } catch (error) {
+                showPopupStatus(`Failed to add ${filename}: ${error.message}`, 'error');
+            }
+        }
+
+        async function addImageFromUrl() {
+            let url = urlInput.value.trim();
+            
+            if (!url) {
+                showPopupStatus('Please enter an image URL!', 'error');
+                return;
+            }
+            
+            const originalUrl = url;
+            url = convertDiscordUrl(url);
+            
+            if (url !== originalUrl) {
+                showPopupStatus('🔄 Auto-converted Discord CDN URL', 'info');
+            }
+            
+            try {
+                addUrlBtn.innerHTML = '<div class="loading"></div>Loading...';
+                addUrlBtn.disabled = true;
+                
+                const img = await loadImageFromUrl(url);
+                
+                const isDuplicate = images.some(existingImg => existingImg.url === url);
+                
+                if (isDuplicate) {
+                    const shouldAdd = await showDuplicateDialog('URL Image');
+                    if (!shouldAdd) {
+                        return;
+                    }
+                }
+                
+                images.push({
+                    element: img,
+                    filename: 'URL Image',
+                    filesize: 0,
+                    url: url,
+                    aspectRatio: img.width / img.height,
+                    isEmpty: false
+                });
+                
+                updateUI();
+                urlInput.value = '';
+                showPopupStatus('✅ Image added from URL!', 'success');
+                
+            } catch (error) {
+                let errorMessage = `Failed to load image: ${error.message}`;
+                
+                if (originalUrl.includes('cdn.discordapp.com') && url === originalUrl) {
+                    errorMessage += '. Try using media.discordapp.net instead of cdn.discordapp.com';
+                }
+                
+                showPopupStatus(errorMessage, 'error');
+            } finally {
+                addUrlBtn.innerHTML = 'Add URL';
+                addUrlBtn.disabled = false;
+            }
+        }
+
+        async function pasteAndAddUrl() {
+            try {
+                const text = await navigator.clipboard.readText();
+                
+                if (!text || !text.trim()) {
+                    showPopupStatus('Clipboard is empty!', 'error');
+                    return;
+                }
+                
+                urlInput.value = text.trim();
+                await addImageFromUrl();
+                
+            } catch (error) {
+                showPopupStatus('Failed to read clipboard. Make sure you granted permission.', 'error');
+            }
+        }
+
+        function addEmptyCell() {
+            images.push({
+                element: null,
+                filename: 'Empty Cell',
+                filesize: 0,
+                url: null,
+                aspectRatio: 1,
+                isEmpty: true
+            });
+            
+            updateUI();
+            showPopupStatus('✅ Empty cell added!', 'success');
+        }
+
+        async function loadImageFromUrl(url) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(new Error('Failed to load image. Check URL and CORS policy.'));
+                
+                img.src = url;
+                
+                setTimeout(() => reject(new Error('Image load timeout')), 30000);
+            });
+        }
+
+        function showDuplicateDialog(filename) {
+            return new Promise((resolve) => {
+                const overlay = document.createElement('div');
+                overlay.className = 'dialog-overlay';
+                
+                const dialog = document.createElement('div');
+                dialog.className = 'duplicate-dialog';
+                dialog.innerHTML = `
+                    <h3>⚠️ Duplicate Image Detected</h3>
+                    <p>The image "<strong>${filename}</strong>" appears to be a duplicate of an already uploaded image.</p>
+                    <p>Do you want to add it anyway?</p>
+                    <div class="dialog-buttons">
+                        <button class="btn" id="duplicateCancel">Cancel</button>
+                        <button class="btn btn-success" id="duplicateAdd">Add Anyway</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(overlay);
+                document.body.appendChild(dialog);
+                
+                document.getElementById('duplicateCancel').onclick = () => {
+                    document.body.removeChild(overlay);
+                    document.body.removeChild(dialog);
+                    resolve(false);
+                };
+                
+                document.getElementById('duplicateAdd').onclick = () => {
+                    document.body.removeChild(overlay);
+                    document.body.removeChild(dialog);
+                    resolve(true);
+                };
+                
+                overlay.onclick = () => {
+                    document.body.removeChild(overlay);
+                    document.body.removeChild(dialog);
+                    resolve(false);
+                };
+            });
+        }
+
+        function confirmRemoveImage(index) {
+            const img = images[index];
+            showDeleteDialog(img.filename, index);
+        }
+
+        function showDeleteDialog(filename, index) {
+            return new Promise((resolve) => {
+                const overlay = document.createElement('div');
+                overlay.className = 'dialog-overlay';
+                
+                const dialog = document.createElement('div');
+                dialog.className = 'duplicate-dialog';
+                dialog.innerHTML = `
+                    <h3>🗑️ Delete ${filename}?</h3>
+                    <p>Are you sure you want to remove "<strong>${filename}</strong>" from the collage?</p>
+                    <div class="dialog-buttons">
+                        <button class="btn" id="deleteCancel">Cancel</button>
+                        <button class="btn btn-success" id="deleteConfirm" style="background: linear-gradient(135deg, #e53e3e, #c53030);">Delete</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(overlay);
+                document.body.appendChild(dialog);
+                
+                document.getElementById('deleteCancel').onclick = () => {
+                    document.body.removeChild(overlay);
+                    document.body.removeChild(dialog);
+                    resolve(false);
+                };
+                
+                document.getElementById('deleteConfirm').onclick = () => {
+                    document.body.removeChild(overlay);
+                    document.body.removeChild(dialog);
+                    removeImage(index);
+                    resolve(true);
+                };
+                
+                overlay.onclick = () => {
+                    document.body.removeChild(overlay);
+                    document.body.removeChild(dialog);
+                    resolve(false);
+                };
+            });
+        }
+
+        function moveImage(index, direction) {
+            const newIndex = index + direction;
+            
+            if (newIndex < 0 || newIndex >= images.length) return;
+            
+            [images[index], images[newIndex]] = [images[newIndex], images[index]];
+            
+            updateUI();
+            showPopupStatus('Image moved', 'info');
+        }
+
+        function updateRows() {
+            userRows = parseInt(rowsSlider.value);
+            rowsValue.textContent = userRows;
+            updateLayoutPreview();
+        }
+
+        function updateCellWidth() {
+            userCellWidth = parseInt(cellWidthSlider.value);
+            cellWidthValue.textContent = userCellWidth + 'px';
+            
+            if (aspectRatioLocked) {
+                userCellHeight = Math.round(userCellWidth / currentAspectRatio);
+                userCellHeight = Math.max(50, Math.min(1000, userCellHeight));
+                cellHeightSlider.value = userCellHeight;
+                cellHeightValue.textContent = userCellHeight + 'px';
+            }
+            
+            updateAspectRatioLabel();
+            updateLayoutPreview();
+        }
+
+        function updateCellHeight() {
+            userCellHeight = parseInt(cellHeightSlider.value);
+            cellHeightValue.textContent = userCellHeight + 'px';
+            
+            if (aspectRatioLocked) {
+                userCellWidth = Math.round(userCellHeight * currentAspectRatio);
+                userCellWidth = Math.max(50, Math.min(1000, userCellWidth));
+                cellWidthSlider.value = userCellWidth;
+                cellWidthValue.textContent = userCellWidth + 'px';
+            }
+            
+            updateAspectRatioLabel();
+            updateLayoutPreview();
+        }
+
+        function updateCellSpacing() {
+            userCellSpacing = parseInt(cellSpacingSlider.value);
+            cellSpacingValue.textContent = userCellSpacing + 'px';
+            updateLayoutPreview();
+        }
+
+        function setPreset(width, height) {
+            userCellWidth = width;
+            userCellHeight = height;
+            cellWidthSlider.value = width;
+            cellHeightSlider.value = height;
+            cellWidthValue.textContent = width + 'px';
+            cellHeightValue.textContent = height + 'px';
+            
+            if (aspectRatioLocked) {
+                currentAspectRatio = width / height;
+            }
+            
+            updateAspectRatioLabel();
+            updateLayoutPreview();
+        }
+
+        function updateLayoutPreview() {
+            if (images.length === 0) return;
+            
+            const cols = Math.ceil(images.length / userRows);
+            const totalCells = userRows * cols;
+            const emptyCells = totalCells - images.length;
+            
+            let preview = document.querySelector('.layout-preview');
+            if (!preview) {
+                preview = document.createElement('div');
+                preview.className = 'layout-preview';
+                document.querySelector('.controls-section').appendChild(preview);
+            }
+            
+            const estimatedWidth = cols * userCellWidth + (cols - 1) * userCellSpacing;
+            const estimatedHeight = userRows * userCellHeight + (userRows - 1) * userCellSpacing;
+            
+            preview.innerHTML = `
+                📐 Layout Preview: ${userRows}×${cols} grid (${images.length} images)
+                ${emptyCells > 0 ? `<br>⚡ ${emptyCells} empty cell(s) - last row will be centered` : ''}
+                <br>🎯 Canvas size: ~${estimatedWidth}×${estimatedHeight}px
+                <br>📏 Cell spacing: ${userCellSpacing}px
+            `;
+        }
+
+        function getCellDimensions() {
+            return { width: userCellWidth, height: userCellHeight };
+        }
+
+        function updateUI() {
+            const realImages = images.filter(img => !img.isEmpty).length;
+            const emptyCells = images.filter(img => img.isEmpty).length;
+            imageCounter.textContent = `${realImages} images${emptyCells > 0 ? ` + ${emptyCells} empty cells` : ''} added`;
+            
+            if (images.length === 0) {
+                imagesGrid.innerHTML = '<div class="empty-state">No images added yet. Start by uploading or dragging images above.</div>';
+            } else {
+                imagesGrid.innerHTML = images.map((img, index) => {
+                    if (img.isEmpty) {
+                        return `
+                            <div class="empty-cell-item">
+                                ⬜
+                                <button class="remove-btn" onclick="confirmRemoveImage(${index})">×</button>
+                                <div class="reorder-buttons">
+                                    <button class="reorder-btn" onclick="moveImage(${index}, -1)" ${index === 0 ? 'disabled' : ''}>↑</button>
+                                    <button class="reorder-btn" onclick="moveImage(${index}, 1)" ${index === images.length - 1 ? 'disabled' : ''}>↓</button>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        return `
+                            <div class="image-item">
+                                <img src="${img.url}" alt="${img.filename}">
+                                <button class="remove-btn" onclick="confirmRemoveImage(${index})">×</button>
+                                <div class="reorder-buttons">
+                                    <button class="reorder-btn" onclick="moveImage(${index}, -1)" ${index === 0 ? 'disabled' : ''}>↑</button>
+                                    <button class="reorder-btn" onclick="moveImage(${index}, 1)" ${index === images.length - 1 ? 'disabled' : ''}>↓</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }).join('');
+            }
+            
+            generateBtn.disabled = images.length === 0;
+            
+            updateLayoutPreview();
+        }
+
+        function removeImage(index) {
+            if (images[index].url && images[index].url.startsWith('blob:')) {
+                URL.revokeObjectURL(images[index].url);
+            }
+            
+            images.splice(index, 1);
+            updateUI();
+            showPopupStatus('Image removed', 'info');
+        }
+
+        function calculateOptimalLayout(count) {
+            const cols = Math.ceil(count / userRows);
+            return { rows: userRows, cols: cols };
+        }
+
+        async function generateCollage() {
+            if (images.length === 0) {
+                showPopupStatus('Add some images first!', 'error');
+                return;
+            }
+            
+            try {
+                generateBtn.innerHTML = '<div class="loading"></div>Generating...';
+                generateBtn.disabled = true;
+                
+                const layout = calculateOptimalLayout(images.length);
+                const cellDims = getCellDimensions();
+                const canvas = createCollageCanvas(images, layout.rows, layout.cols, cellDims, userCellSpacing);
+                
+                collageCanvas.width = canvas.width;
+                collageCanvas.height = canvas.height;
+                const ctx = collageCanvas.getContext('2d');
+                ctx.drawImage(canvas, 0, 0);
+                
+                collagePreview.style.display = 'block';
+                collagePreview.scrollIntoView({ behavior: 'smooth' });
+                
+                document.getElementById('collageInfo').innerHTML = `
+                    <p><strong>Layout:</strong> ${layout.rows}×${layout.cols} grid (${images.length} items)</p>
+                    <p><strong>Canvas size:</strong> ${canvas.width}×${canvas.height}px</p>
+                    <p><strong>Cell size:</strong> ${cellDims.width}×${cellDims.height}px</p>
+                    <p><strong>Cell spacing:</strong> ${userCellSpacing}px</p>
+                `;
+                
+                showPopupStatus(`🎉 Collage generated! Layout: ${layout.rows}×${layout.cols}`, 'success');
+                
+            } catch (error) {
+                showPopupStatus(`Failed to generate collage: ${error.message}`, 'error');
+            } finally {
+                generateBtn.innerHTML = '🎨 Generate Collage';
+                generateBtn.disabled = false;
+            }
+        }
+
+        function createCollageCanvas(imageItems, rows, cols, cellDims, spacing = 5) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const collageWidth = cols * cellDims.width + (cols - 1) * spacing;
+            const collageHeight = rows * cellDims.height + (rows - 1) * spacing;
+            
+            canvas.width = collageWidth;
+            canvas.height = collageHeight;
+            
+            ctx.clearRect(0, 0, collageWidth, collageHeight);
+            
+            for (let i = 0; i < imageItems.length; i++) {
+                const item = imageItems[i];
+                
+                if (item.isEmpty) {
+                    continue;
+                }
+                
+                const img = item.element;
+                let row = Math.floor(i / cols);
+                let col = i % cols;
+                let xOffset = 0;
+                
+                const isLastRow = row === rows - 1;
+                const itemsInThisRow = isLastRow ? imageItems.length - (row * cols) : cols;
+                
+                if (isLastRow && itemsInThisRow < cols) {
+                    const emptySpaces = cols - itemsInThisRow;
+                    xOffset = (emptySpaces * (cellDims.width + spacing)) / 2;
+                }
+                
+                const resizedImg = resizeImageToFit(img, cellDims.width, cellDims.height);
+                
+                const x = col * (cellDims.width + spacing) + (cellDims.width - resizedImg.width) / 2 + xOffset;
+                const y = row * (cellDims.height + spacing) + (cellDims.height - resizedImg.height) / 2;
+                
+                ctx.drawImage(resizedImg, x, y);
+            }
+            
+            return canvas;
+        }
+
+        function resizeImageToFit(img, maxWidth, maxHeight) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const widthRatio = maxWidth / img.width;
+            const heightRatio = maxHeight / img.height;
+            const ratio = Math.min(widthRatio, heightRatio);
+            
+            const newWidth = Math.floor(img.width * ratio);
+            const newHeight = Math.floor(img.height * ratio);
+            
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            
+            ctx.drawImage(img, 0, 0, newWidth, newHeight);
+            
+            return canvas;
+        }
+
+        function downloadCollage() {
+            try {
+                const link = document.createElement('a');
+                link.download = `collage_${images.length}_images_${Date.now()}.png`;
+                link.href = collageCanvas.toDataURL('image/png');
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showPopupStatus('✅ Collage downloaded successfully!', 'success');
+            } catch (error) {
+                showPopupStatus('❌ Failed to download. Try right-clicking the image and saving manually.', 'error');
+            }
+        }
+
+        function clearUrlInput() {
+            urlInput.value = '';
+            urlInput.focus();
+        }
+
+        function showPopupStatus(message, type) {
+            const popup = document.createElement('div');
+            popup.className = `popup-notification popup-${type}`;
+            popup.textContent = message;
+            
+            document.body.appendChild(popup);
+            
+            setTimeout(() => {
+                popup.classList.add('fade-out');
+                setTimeout(() => {
+                    if (popup.parentNode) {
+                        popup.parentNode.removeChild(popup);
+                    }
+                }, 300);
+            }, 2000);
+        }
+
+        updateUI();
+        updateAspectRatioLabel();
+        showPopupStatus('☕ Cuppa ready! Add images and customize your layout.', 'info');
+    </script>
+</body>
+</html>
