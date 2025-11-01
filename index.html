@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cuppa - Simple Collage Creator</title>
+    <meta name="apple-mobile-web-app-title" content="Cuppa">
+    <meta name="application-name" content="Cuppa">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -16,7 +18,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #3E2723 0%, #5D4037 50%, #8D6E63 100%);
+            background: linear-gradient(135deg, #2C1810 0%, #5D4037 50%, #A1887F 100%);
             color: #3E2723;
             min-height: 100vh;
             padding: 20px;
@@ -32,18 +34,14 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #5D4037 0%, #6D4C41 100%);
-            color: #FFF8E1;
+            background: linear-gradient(135deg, #C19A6B 0%, #D4A574 100%);
+            color: #3E2723;
             padding: 30px;
             text-align: center;
         }
 
         .logo-space {
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 10px;
+            display: none;
         }
 
         .header h1 {
@@ -118,6 +116,29 @@
             box-shadow: 0 0 0 3px rgba(109, 76, 65, 0.1);
         }
 
+        .button-row {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-compact {
+            padding: 10px 16px;
+            font-size: 14px;
+            margin: 2px;
+            flex: 1 1 auto;
+            min-width: 100px;
+        }
+
+        @media (max-width: 768px) {
+            .btn-compact {
+                padding: 10px 12px;
+                font-size: 13px;
+                min-width: 80px;
+            }
+        }
+
         .btn {
             background: linear-gradient(135deg, #6D4C41 0%, #5D4037 100%);
             color: #FFF8E1;
@@ -143,7 +164,7 @@
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #D4A574 0%, #C19A6B 100%);
+            background: linear-gradient(135deg, #E8C9A1 0%, #D4A574 100%);
             color: #3E2723;
         }
 
@@ -390,8 +411,19 @@
 
         .control-group label {
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             color: #5D4037;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+        }
+
+        .control-group span {
+            font-weight: 600;
+            color: #6D4C41;
+            font-size: 14px;
+            margin: 0;
         }
 
         .slider-container {
@@ -637,13 +669,12 @@
 
                 <div class="url-input-section">
                     <input type="url" id="urlInput" class="url-input" placeholder="Paste image URL here...">
-                    <button type="button" class="btn" id="addUrlBtn">Add URL</button>
-                    <button type="button" class="btn" id="pasteUrlBtn">Paste URL</button>
-                    <button type="button" class="btn" id="clearUrlBtn">Clear</button>
-                </div>
-
-                <div style="margin: 15px 0;">
-                    <button type="button" class="btn" id="addEmptyCellBtn">➕ Add Empty Cell</button>
+                    <div class="button-row">
+                        <button type="button" class="btn btn-compact" id="addUrlBtn">Add URL</button>
+                        <button type="button" class="btn btn-compact" id="pasteUrlBtn">Paste URL</button>
+                        <button type="button" class="btn btn-compact" id="clearUrlBtn">Clear</button>
+                        <button type="button" class="btn btn-compact" id="addEmptyCellBtn">➕ Empty Cell</button>
+                    </div>
                 </div>
 
                 <div class="image-counter" id="imageCounter">
@@ -654,40 +685,36 @@
                     <h3>🎛️ Layout Controls</h3>
                     <div class="controls-grid">
                         <div class="control-group">
-                            <label for="rowsSlider">Rows:</label>
+                            <label for="rowsSlider">Rows: <span id="rowsValue">2</span></label>
                             <div class="slider-container">
                                 <button class="increment-btn" onclick="adjustRows(-1)">-</button>
                                 <input type="range" id="rowsSlider" min="1" max="10" value="2" class="slider">
                                 <button class="increment-btn" onclick="adjustRows(1)">+</button>
                             </div>
-                            <span id="rowsValue">2</span>
                         </div>
                         <div class="control-group">
-                            <label for="cellWidthSlider">Cell Width:</label>
+                            <label for="cellWidthSlider">Cell Width: <span id="cellWidthValue">500px</span></label>
                             <div class="slider-container">
                                 <button class="increment-btn" onclick="adjustCellWidth(-1)">-</button>
                                 <input type="range" id="cellWidthSlider" min="50" max="1000" value="500" class="slider">
                                 <button class="increment-btn" onclick="adjustCellWidth(1)">+</button>
                             </div>
-                            <span id="cellWidthValue">500px</span>
                         </div>
                         <div class="control-group">
-                            <label for="cellHeightSlider">Cell Height:</label>
+                            <label for="cellHeightSlider">Cell Height: <span id="cellHeightValue">800px</span></label>
                             <div class="slider-container">
                                 <button class="increment-btn" onclick="adjustCellHeight(-1)">-</button>
                                 <input type="range" id="cellHeightSlider" min="50" max="1000" value="800" class="slider">
                                 <button class="increment-btn" onclick="adjustCellHeight(1)">+</button>
                             </div>
-                            <span id="cellHeightValue">800px</span>
                         </div>
                         <div class="control-group">
-                            <label for="cellSpacingSlider">Cell Spacing:</label>
+                            <label for="cellSpacingSlider">Cell Spacing: <span id="cellSpacingValue">5px</span></label>
                             <div class="slider-container">
                                 <button class="increment-btn" onclick="adjustCellSpacing(-1)">-</button>
                                 <input type="range" id="cellSpacingSlider" min="0" max="50" value="5" class="slider">
                                 <button class="increment-btn" onclick="adjustCellSpacing(1)">+</button>
                             </div>
-                            <span id="cellSpacingValue">5px</span>
                         </div>
                     </div>
                     
