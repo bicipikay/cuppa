@@ -7,6 +7,10 @@
     <meta name="apple-mobile-web-app-title" content="Cuppa">
     <meta name="application-name" content="Cuppa">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <style>
@@ -650,6 +654,119 @@
             .increment-btn { width: 32px; height: 32px; font-size: 14px; }
             .preset-btn { padding: 7px 9px; font-size: 11px; }
         }
+
+        /* Add these new styles for text labels */
+
+        .image-label-input {
+            width: 100%;
+            padding: 4px 6px;
+            border: 1px solid #D7CCC8;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 4px;
+            background: #FFFAF0;
+            text-align: center;
+        }
+
+        .image-label-input:focus {
+            outline: none;
+            border-color: #6D4C41;
+            box-shadow: 0 0 0 2px rgba(109, 76, 65, 0.1);
+        }
+
+        .move-buttons {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2px;
+        }
+
+        .move-btn {
+            background: rgba(109, 76, 65, 0.9);
+            color: #FFF8E1;
+            border: none;
+            border-radius: 3px;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .move-btn:hover {
+            background: rgba(93, 64, 55, 1);
+        }
+
+        .move-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .label-font-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: #FFFAF0;
+            border-radius: 8px;
+            border: 1px solid #D7CCC8;
+        }
+
+        .labels-toggle-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 10px;
+            background: #FFFAF0;
+            border-radius: 8px;
+            border: 1px solid #D7CCC8;
+        }
+
+        .labels-toggle-section input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #6D4C41;
+        }
+
+        .labels-toggle-section label {
+            font-weight: 600;
+            color: #5D4037;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .font-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #D7CCC8;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #FFFAF0;
+            color: #5D4037;
+            cursor: pointer;
+        }
+
+        .font-select:focus {
+            outline: none;
+            border-color: #6D4C41;
+            box-shadow: 0 0 0 3px rgba(109, 76, 65, 0.1);
+        }
+
+        .sort-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
@@ -658,7 +775,7 @@
             <div class="logo-space"></div>
             <h1>☕ Cuppa</h1>
             <p>Simple and minimalistic collage creator for your photos. Upload images, adjust layout 
-                controls (default spacing: 5px), and generate your collage. Discord CDN links are 
+                controls, and generate your collage. Discord CDN links are 
                 automatically converted to media.discordapp.net for compatibility.</p>
         </div>
 
@@ -691,10 +808,10 @@
                     <h3>🎛️ Layout Controls</h3>
                     <div class="controls-grid">
                         <div class="control-group">
-                            <label for="rowsSlider">Rows: <span id="rowsValue">2</span></label>
+                            <label for="rowsSlider">Rows: <span id="rowsValue">5</span></label>
                             <div class="slider-container">
                                 <button class="increment-btn" onclick="adjustRows(-1)">-</button>
-                                <input type="range" id="rowsSlider" min="1" max="10" value="2" class="slider">
+                                <input type="range" id="rowsSlider" min="1" max="10" value="5" class="slider">
                                 <button class="increment-btn" onclick="adjustRows(1)">+</button>
                             </div>
                         </div>
@@ -728,12 +845,59 @@
                         <input type="checkbox" id="aspectRatioLock" onchange="toggleAspectRatioLock()">
                         <label for="aspectRatioLock">🔒 Lock Aspect Ratio (5:8)</label>
                     </div>
+
+                    <div class="labels-toggle-section">
+                        <input type="checkbox" id="showLabelsToggle" onchange="toggleShowLabels()">
+                        <label for="showLabelsToggle">🏷️ Enable Image Labels</label>
+                    </div>
+
+                    <div class="control-group" id="labelFontSizeControl" style="display: none;">
+                        <label for="labelFontSlider">Label Font Size: <span id="labelFontValue">48px</span></label>
+                        <div class="slider-container">
+                            <button class="increment-btn" onclick="adjustLabelFont(-1)">-</button>
+                            <input type="range" id="labelFontSlider" min="10" max="240" value="48" class="slider">
+                            <button class="increment-btn" onclick="adjustLabelFont(1)">+</button>
+                        </div>
+                    </div>
                     
+                    <div class="control-group" id="labelFontStyleControl" style="display: none;">
+                        <label for="labelFontSelect">Label Font Style:</label>
+                        <select id="labelFontSelect" class="font-select" onchange="updateLabelFontStyle()">
+                            <option value="'Lilita One', cursive">Lilita One (Default)</option>
+                            <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="'Courier New', monospace">Courier New</option>
+                            <option value="Impact, sans-serif">Impact</option>
+                            <option value="'Comic Sans MS', cursive">Comic Sans</option>
+                            <option value="Verdana, sans-serif">Verdana</option>
+                            <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                            <option value="'Palatino', serif">Palatino</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group" id="labelOutlineControl" style="display: none;">
+                        <label for="labelOutlineSlider">Label Outline Width: <span id="labelOutlineValue">20px</span></label>
+                        <div class="slider-container">
+                            <button class="increment-btn" onclick="adjustLabelOutline(-1)">-</button>
+                            <input type="range" id="labelOutlineSlider" min="0" max="40" value="20" class="slider">
+                            <button class="increment-btn" onclick="adjustLabelOutline(1)">+</button>
+                        </div>
+                    </div>
+
                     <div class="preset-buttons">
                         <button type="button" class="btn preset-btn" onclick="setPreset(1000, 1000)">Square</button>
                         <button type="button" class="btn preset-btn" onclick="setPreset(500, 800)">Portrait</button>
                         <button type="button" class="btn preset-btn" onclick="setPreset(800, 500)">Landscape</button>
                     </div>
+                </div>
+
+                <div class="sort-buttons" id="sortButtons" style="display: none;">
+                    <button type="button" class="btn btn-compact" onclick="sortImages('label', 'asc')">🔤 A→Z</button>
+                    <button type="button" class="btn btn-compact" onclick="sortImages('label', 'desc')">🔤 Z→A</button>
+                    <button type="button" class="btn btn-compact" onclick="sortImages('date', 'asc')">📅 Old→New</button>
+                    <button type="button" class="btn btn-compact" onclick="sortImages('date', 'desc')">📅 New→Old</button>
                 </div>
 
                 <div class="images-grid" id="imagesGrid">
@@ -766,12 +930,16 @@
 
     <script>
         let images = [];
-        let userRows = 2;
+        let userRows = 5;
         let userCellWidth = 500;
         let userCellHeight = 800;
         let userCellSpacing = 5;
         let aspectRatioLocked = false;
         let currentAspectRatio = 500 / 800;
+        let showLabels = false;
+        let labelFontSize = 48;
+        let labelFontStyle = "'Lilita One', cursive"; // Default font
+        let labelOutlineWidth = 20; // Default outline width
 
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
@@ -795,6 +963,15 @@
         const cellHeightValue = document.getElementById('cellHeightValue');
         const cellSpacingValue = document.getElementById('cellSpacingValue');
         const aspectRatioLock = document.getElementById('aspectRatioLock');
+
+        const labelFontSlider = document.getElementById('labelFontSlider');
+        const labelOutlineSlider = document.getElementById('labelOutlineSlider');
+        if (labelFontSlider) {
+            labelFontSlider.addEventListener('input', updateLabelFont);
+        }
+        if (labelOutlineSlider) {
+            labelOutlineSlider.addEventListener('input', updateLabelOutline);
+        }
 
         uploadArea.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', handleFileSelect);
@@ -905,24 +1082,30 @@
         }
 
         async function addImagesFromFiles(files) {
-            for (let file of files) {
-                const isDuplicate = images.some(img => 
-                    img.filename === file.name && 
-                    img.filesize === file.size
-                );
-                
-                if (isDuplicate) {
-                    const shouldAdd = await showDuplicateDialog(file.name);
-                    if (!shouldAdd) {
-                        continue;
-                    }
-                }
-                
+            // Sort files alphabetically with natural number ordering
+            const sortedFiles = Array.from(files).sort((a, b) => 
+                a.name.localeCompare(b.name, undefined, {numeric: true, sensitivity: 'base'})
+            );
+            
+            for (let file of sortedFiles) {
                 await addImageFromBlob(file, file.name, file.size);
             }
         }
 
         async function addImageFromBlob(blob, filename, filesize = blob.size) {
+            // Add duplicate check for files
+            const isDuplicate = images.some(img => 
+                img.filename === filename && 
+                img.filesize === filesize
+            );
+            
+            if (isDuplicate) {
+                const shouldAdd = await showDuplicateDialog(filename);
+                if (!shouldAdd) {
+                    return;
+                }
+            }
+            
             try {
                 const url = URL.createObjectURL(blob);
                 const img = await loadImageFromUrl(url);
@@ -933,7 +1116,9 @@
                     filesize: filesize,
                     url: url,
                     aspectRatio: img.width / img.height,
-                    isEmpty: false
+                    isEmpty: false,
+                    label: filename.replace(/\.[^/.]+$/, ''), // Remove file extension
+                    dateAdded: Date.now() // Add timestamp for sorting
                 });
                 
                 updateUI();
@@ -974,13 +1159,29 @@
                     }
                 }
                 
+                // Try to extract filename from URL or use a default
+                let defaultLabel = 'URL Image';
+                /*
+                try {
+                    const urlPath = new URL(url).pathname;
+                    const urlFilename = urlPath.split('/').pop();
+                    if (urlFilename && urlFilename.includes('.')) {
+                        defaultLabel = urlFilename.replace(/\.[^/.]+$/, ''); // Remove extension
+                    }
+                } catch (e) {
+                    // If URL parsing fails, keep default
+                }
+                    */
+
                 images.push({
                     element: img,
                     filename: 'URL Image',
                     filesize: 0,
                     url: url,
                     aspectRatio: img.width / img.height,
-                    isEmpty: false
+                    isEmpty: false,
+                    label: defaultLabel,
+                    dateAdded: Date.now()
                 });
                 
                 updateUI();
@@ -1003,13 +1204,15 @@
 
         function addEmptyCell() {
             images.push({
-                element: null,
-                filename: 'Empty Cell',
-                filesize: 0,
-                url: null,
-                aspectRatio: 1,
-                isEmpty: true
-            });
+            element: null,
+            filename: 'Empty Cell',
+            filesize: 0,
+            url: null,
+            aspectRatio: 1,
+            isEmpty: true,
+            label: '', // Empty cells don't need labels
+            dateAdded: Date.now()
+        });
             
             updateUI();
             showPopupStatus('✅ Empty cell added!', 'success');
@@ -1217,6 +1420,11 @@
             const emptyCells = images.filter(img => img.isEmpty).length;
             imageCounter.textContent = `${realImages} images${emptyCells > 0 ? ` + ${emptyCells} empty cells` : ''} added`;
             
+            const sortButtons = document.getElementById('sortButtons');
+            if (sortButtons) {
+                sortButtons.style.display = images.length > 1 ? 'flex' : 'none';
+            }
+            
             if (images.length === 0) {
                 imagesGrid.innerHTML = '<div class="empty-state">No images added yet. Start by uploading or dragging images above.</div>';
             } else {
@@ -1226,9 +1434,11 @@
                             <div class="empty-cell-item">
                                 ⬜
                                 <button class="remove-btn" onclick="confirmRemoveImage(${index})">×</button>
-                                <div class="reorder-buttons">
-                                    <button class="reorder-btn" onclick="moveImage(${index}, -1)" ${index === 0 ? 'disabled' : ''}>←</button>
-                                    <button class="reorder-btn" onclick="moveImage(${index}, 1)" ${index === images.length - 1 ? 'disabled' : ''}>→</button>
+                                <div class="move-buttons">
+                                    <button class="move-btn" onclick="jumpToStart(${index})" ${index === 0 ? 'disabled' : ''} title="Jump to start">⏮️</button>
+                                    <button class="move-btn" onclick="moveImage(${index}, -1)" ${index === 0 ? 'disabled' : ''} title="Move left">⬅️</button>
+                                    <button class="move-btn" onclick="moveImage(${index}, 1)" ${index === images.length - 1 ? 'disabled' : ''} title="Move right">➡️</button>
+                                    <button class="move-btn" onclick="jumpToEnd(${index})" ${index === images.length - 1 ? 'disabled' : ''} title="Jump to end">⏭️</button>
                                 </div>
                             </div>
                         `;
@@ -1237,10 +1447,13 @@
                             <div class="image-item">
                                 <img src="${img.url}" alt="${img.filename}">
                                 <button class="remove-btn" onclick="confirmRemoveImage(${index})">×</button>
-                                <div class="reorder-buttons">
-                                    <button class="reorder-btn" onclick="moveImage(${index}, -1)" ${index === 0 ? 'disabled' : ''}>←</button>
-                                    <button class="reorder-btn" onclick="moveImage(${index}, 1)" ${index === images.length - 1 ? 'disabled' : ''}>→</button>
+                                <div class="move-buttons">
+                                    <button class="move-btn" onclick="jumpToStart(${index})" ${index === 0 ? 'disabled' : ''} title="Jump to start">⏮️</button>
+                                    <button class="move-btn" onclick="moveImage(${index}, -1)" ${index === 0 ? 'disabled' : ''} title="Move left">⬅️</button>
+                                    <button class="move-btn" onclick="moveImage(${index}, 1)" ${index === images.length - 1 ? 'disabled' : ''} title="Move right">➡️</button>
+                                    <button class="move-btn" onclick="jumpToEnd(${index})" ${index === images.length - 1 ? 'disabled' : ''} title="Jump to end">⏭️</button>
                                 </div>
+                                ${showLabels ? `<input type="text" class="image-label-input" value="${img.label || ''}" placeholder="Add label..." maxlength="40" onchange="updateImageLabel(${index}, this.value)">` : ''}
                             </div>
                         `;
                     }
@@ -1340,10 +1553,52 @@
                 
                 const resizedImg = resizeImageToFit(img, cellDims.width, cellDims.height);
                 
-                const x = col * (cellDims.width + spacing) + (cellDims.width - resizedImg.width) / 2 + xOffset;
-                const y = row * (cellDims.height + spacing) + (cellDims.height - resizedImg.height) / 2;
-                
-                ctx.drawImage(resizedImg, x, y);
+                // Calculate positioning with label space if needed
+                const labelHeight = showLabels && item.label ? 20 : 0;
+                const availableHeight = cellDims.height - labelHeight;
+
+                const resizedImgWithLabel = resizeImageToFit(img, cellDims.width, availableHeight);
+
+                const x = col * (cellDims.width + spacing) + (cellDims.width - resizedImgWithLabel.width) / 2 + xOffset;
+                const y = row * (cellDims.height + spacing) + (availableHeight - resizedImgWithLabel.height) / 2;
+
+                ctx.drawImage(resizedImgWithLabel, x, y);
+
+                // Draw label if enabled and present
+                if (showLabels && item.label) {
+                    ctx.save();
+                    
+                    // Set font with selected style
+                    ctx.font = `bold ${labelFontSize}px ${labelFontStyle}`;
+                    ctx.textAlign = 'center';
+                    
+                    const labelX = col * (cellDims.width + spacing) + cellDims.width / 2 + xOffset;
+                    const labelY = row * (cellDims.height + spacing) + cellDims.height - Math.max(8, labelFontSize / 4);
+                    
+                    // Truncate label if too long for cell width
+                    let displayLabel = item.label;
+                    const maxWidth = cellDims.width - 10;
+                    
+                    while (ctx.measureText(displayLabel).width > maxWidth && displayLabel.length > 0) {
+                        displayLabel = displayLabel.slice(0, -1);
+                    }
+                    
+                    if (displayLabel.length < item.label.length) {
+                        displayLabel = displayLabel.trim() + '...';
+                    }
+                    
+                    // Draw black outline (multiple passes for better coverage)
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = labelOutlineWidth;
+                    ctx.lineJoin = 'round';
+                    ctx.strokeText(displayLabel, labelX, labelY);
+                    
+                    // Draw white fill text
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillText(displayLabel, labelX, labelY);
+                    
+                    ctx.restore();
+                }
             }
             
             return canvas;
@@ -1406,9 +1661,122 @@
             }, 2000);
         }
 
+        function toggleShowLabels() {
+            const toggle = document.getElementById('showLabelsToggle');
+            showLabels = toggle.checked;
+            
+            // Show/hide font controls
+            const fontSizeControl = document.getElementById('labelFontSizeControl');
+            const fontStyleControl = document.getElementById('labelFontStyleControl');
+            if (fontSizeControl) {
+                fontSizeControl.style.display = showLabels ? 'block' : 'none';
+            }
+            if (fontStyleControl) {
+                fontStyleControl.style.display = showLabels ? 'block' : 'none';
+            }
+
+            const fontOutlineControl = document.getElementById('labelOutlineControl');
+            if (fontOutlineControl) {
+                fontOutlineControl.style.display = showLabels ? 'block' : 'none';
+            }
+            
+            updateUI();
+        }
+
+        function adjustLabelFont(delta) {
+            const newValue = Math.max(10, Math.min(240, labelFontSize + delta));
+            const slider = document.getElementById('labelFontSlider');
+            slider.value = newValue;
+            updateLabelFont();
+        }
+
+        function updateLabelFont() {
+            const slider = document.getElementById('labelFontSlider');
+            labelFontSize = parseInt(slider.value);
+            document.getElementById('labelFontValue').textContent = labelFontSize + 'px';
+        }
+
+        function updateImageLabel(index, value) {
+            images[index].label = value.slice(0, 40);
+        }
+
+        function jumpToStart(index) {
+            if (index === 0) return;
+            const [item] = images.splice(index, 1);
+            images.unshift(item);
+            updateUI();
+            showPopupStatus('Moved to start', 'info');
+        }
+
+        function jumpToEnd(index) {
+            if (index === images.length - 1) return;
+            const [item] = images.splice(index, 1);
+            images.push(item);
+            updateUI();
+            showPopupStatus('Moved to end', 'info');
+        }
+
+        function updateLabelFontStyle() {
+            const select = document.getElementById('labelFontSelect');
+            labelFontStyle = select.value;
+        }
+
+        function adjustLabelOutline(delta) {
+            const newValue = Math.max(0, Math.min(20, labelOutlineWidth + delta));
+            const slider = document.getElementById('labelOutlineSlider');
+            slider.value = newValue;
+            updateLabelOutline();
+        }
+
+        function updateLabelOutline() {
+            const slider = document.getElementById('labelOutlineSlider');
+            labelOutlineWidth = parseInt(slider.value);
+            document.getElementById('labelOutlineValue').textContent = labelOutlineWidth + 'px';
+        }
+
+        function sortImages(by, direction) {
+            if (images.length === 0) return;
+            
+            const sortedImages = [...images];
+            
+            if (by === 'label') {
+                sortedImages.sort((a, b) => {
+                    const labelA = (a.label || a.filename || '').toLowerCase();
+                    const labelB = (b.label || b.filename || '').toLowerCase();
+                    
+                    if (direction === 'asc') {
+                        return labelA.localeCompare(labelB, undefined, {numeric: true, sensitivity: 'base'});
+                    } else {
+                        return labelB.localeCompare(labelA, undefined, {numeric: true, sensitivity: 'base'});
+                    }
+                });
+            } else if (by === 'date') {
+                sortedImages.sort((a, b) => {
+                    const dateA = a.dateAdded || 0;
+                    const dateB = b.dateAdded || 0;
+                    
+                    if (direction === 'asc') {
+                        return dateA - dateB;
+                    } else {
+                        return dateB - dateA;
+                    }
+                });
+            }
+            
+            images = sortedImages;
+            updateUI();
+            showPopupStatus(`Sorted by ${by} (${direction === 'asc' ? 'ascending' : 'descending'})`, 'info');
+        }
+
         updateUI();
         updateAspectRatioLabel();
         showPopupStatus('☕ Cuppa ready! Add images and customize your layout.', 'info');
+        // Force load the font on page load
+        window.addEventListener('load', () => {
+            document.fonts.load("bold 16px 'Lilita One'").then(() => {
+                console.log('Lilita One font loaded');
+            });
+        });
     </script>
 </body>
 </html>
