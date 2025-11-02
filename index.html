@@ -1711,7 +1711,7 @@
         }
 
         function adjustLabelOutline(delta) {
-            const newValue = Math.max(0, Math.min(20, labelOutlineWidth + delta));
+            const newValue = Math.max(0, Math.min(40, labelOutlineWidth + delta));
             const slider = document.getElementById('labelOutlineSlider');
             slider.value = newValue;
             updateLabelOutline();
