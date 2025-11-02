@@ -506,31 +506,6 @@
             font-size: 14px;
         }
 
-        .aspect-ratio-section {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin: 15px 0;
-            padding: 10px;
-            background: #FFFAF0;
-            border-radius: 8px;
-            border: 1px solid #D7CCC8;
-        }
-
-        .aspect-ratio-section input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #6D4C41;
-        }
-
-        .aspect-ratio-section label {
-            font-weight: 600;
-            color: #5D4037;
-            margin: 0;
-            cursor: pointer;
-        }
-
         .preset-buttons {
             display: flex;
             gap: 10px;
@@ -718,7 +693,7 @@
             border: 1px solid #D7CCC8;
         }
 
-        .labels-toggle-section {
+        .toggle-section {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -730,17 +705,31 @@
             border: 1px solid #D7CCC8;
         }
 
-        .labels-toggle-section input[type="checkbox"] {
+        .toggle-section input[type="checkbox"] {
             width: 18px;
             height: 18px;
             accent-color: #6D4C41;
+            flex-shrink: 0; /* Prevent checkbox from shrinking */
         }
 
-        .labels-toggle-section label {
+        .toggle-section label {
             font-weight: 600;
             color: #5D4037;
             margin: 0;
             cursor: pointer;
+            font-size: 14px; /* Consistent font size */
+        }
+
+        /* Mobile optimization */
+        @media (max-width: 768px) {
+            .toggle-section {
+                padding: 12px;
+                margin: 12px 0;
+            }
+            
+            .toggle-section label {
+                font-size: 13px;
+            }
         }
 
         .font-select {
@@ -841,12 +830,12 @@
                         </div>
                     </div>
                     
-                    <div class="aspect-ratio-section">
+                    <div class="toggle-section">
                         <input type="checkbox" id="aspectRatioLock" onchange="toggleAspectRatioLock()">
                         <label for="aspectRatioLock">🔒 Lock Aspect Ratio (5:8)</label>
                     </div>
 
-                    <div class="labels-toggle-section">
+                    <div class="toggle-section">
                         <input type="checkbox" id="showLabelsToggle" onchange="toggleShowLabels()">
                         <label for="showLabelsToggle">🏷️ Enable Image Labels</label>
                     </div>
